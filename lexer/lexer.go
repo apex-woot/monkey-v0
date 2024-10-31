@@ -36,6 +36,12 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.ASSIGN, l.ch)
 	case ',':
 		tok = newToken(token.COMMA, l.ch)
+	case '!':
+		tok = newToken(token.BANG, l.ch)
+	case '<':
+		tok = newToken(token.LT, l.ch)
+	case '>':
+		tok = newToken(token.RT, l.ch)
 	case ';':
 		tok = newToken(token.SEMICOLON, l.ch)
 	case '(':
@@ -48,17 +54,23 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.RBRACE, l.ch)
 	case '+':
 		tok = newToken(token.PLUS, l.ch)
+	case '-':
+		tok = newToken(token.MINUS, l.ch)
+	case '*':
+		tok = newToken(token.ASTERISK, l.ch)
+	case '/':
+		tok = newToken(token.SLASH, l.ch)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.ch) {
-			tok.Literal = l.readIdentifier()
+			tok.Literal = l.readLiteral(isLetter)
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Type = token.INT
-			tok.Literal = l.readNumber()
+			tok.Literal = l.readLiteral(isDigit)
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
@@ -69,9 +81,9 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
-func (l *Lexer) readIdentifier() string {
+func (l *Lexer) readLiteral(isCorrectLiteral func(byte) bool) string {
 	position := l.position
-	for isLetter(l.ch) {
+	for isCorrectLiteral(l.ch) {
 		l.readChar()
 	}
 	return l.input[position:l.position]
@@ -81,14 +93,6 @@ func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
-}
-
-func (l *Lexer) readNumber() string {
-	position := l.position
-	for isDigit(l.ch) {
-		l.readChar()
-	}
-	return l.input[position:l.position]
 }
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
