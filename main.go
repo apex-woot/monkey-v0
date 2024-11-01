@@ -1,31 +1,19 @@
 package main
 
 import (
-	"github.com/apex-woot/monkey-v0/lexer"
-	"github.com/apex-woot/monkey-v0/token"
+	"fmt"
+	"os"
+	"os/user"
+
+	"github.com/apex-woot/monkey-v0/repl"
 )
 
 func main() {
-	input := `let five = 5;
-    let ten = 10;
-    let add = fn(x, y) {
-        x + y;
-    };
-    let result = add(five, ten);
-    !-/*5;
-    5 < 10 > 5;
-
-    if (5 < 10) {
-        return true;
-    } else {
-        return false;
-    };
-    10 == 10;
-    10 != 9;
-    `
-
-	l := lexer.New(input)
-	for l.NextToken().Type != token.EOF {
-		l.NextToken()
+	user, err := user.Current()
+	if err != nil {
+		panic(err)
 	}
+	fmt.Printf("Hello %s! This is a monkey programming language\n", user.Username)
+	fmt.Printf("Feel free to type comamnds\n")
+	repl.Start(os.Stdin, os.Stdout)
 }
